@@ -1,0 +1,47 @@
+name: Daily Repository Update
+
+on:
+  # Schedule the workflow to run once per day at a specific time.
+  # This example runs at 00:30 UTC every day.
+  # You MUST choose specific hours/minutes, not wildcards.
+  # Format: "minute hour day_of_month month day_of_week"
+  # For example, "0 0 * * *" runs at 00:00 UTC daily.
+  # Let's use 30 minutes past midnight UTC.
+  schedule:
+    - cron: "30 0 * * *" # Runs at 00:30 UTC daily
+
+  # Allows you to manually trigger the workflow from the GitHub Actions tab
+  workflow_dispatch: 
+
+jobs:
+  daily-commit:
+    runs-on: ubuntu-latest
+    permissions:
+      # Grant write permissions to the GITHUB_TOKEN for committing changes
+      contents: write
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Create a new file with timestamp (or update existing) - 23f3002755@ds.study.iitm.ac.in
+        run: |
+          # This command creates a new file or appends to an existing one
+          # with the current timestamp, ensuring a change to commit.
+          echo "Last updated at $(date -uIs)" >> daily-update.txt
+          echo "Workflow triggered by 23f3002755@ds.study.iitm.ac.in" >> daily-update.txt
+
+      - name: Commit and push changes - 23f3002755@ds.study.iitm.ac.in
+        run: |
+          # Configure Git user for the commit
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          # Add the changed file (daily-update.txt) to staging
+          git add daily-update.txt
+
+          # Commit the changes. '|| exit 0' prevents failure if no changes.
+          git commit -m "Automated daily update from GitHub Actions [skip ci]" || exit 0
+
+          # Push the changes to the 'main' branch (or 'master' if that's your default)
+          git push
